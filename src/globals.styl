@@ -1,0 +1,60 @@
+*
+    box-sizing border-box
+    font-family Tahoma, Arial
+    margin 0
+    padding 0
+
+:root
+    font-size 16px
+
+:root, html, body
+    margin 0
+    padding 0
+
+// Global class names need to be nested under the :global block
+:global
+    .row
+        display flex
+        align-items center
+
+        > * + *
+            margin-left .5rem
+
+    .single-product
+        display flex
+        align-items center
+        background #efefef
+        padding 15px
+        margin 0 0 10px
+        border-bottom 1px solid #cfcfcf
+        border-left 1px solid #cfcfcf
+        transition background 0.2s ease
+
+        &:hover
+            background #e3e3e3
+
+    .single-product img
+        max-width 200px
+        height auto
+        display block
+
+    .single-product h3
+        font-size 22px
+        line-height 1.4
+        width calc(100% - 340px)
+        padding 0 15px
+
+    .single-product button
+        width 140px
+        font-size 18px
+        border-radius 2px
+        border 1px solid #456fed
+        padding 10px
+        cursor pointer
+        transition all 0.2s ease
+
+        &:hover
+            background #456fed
+            color white
+
+
