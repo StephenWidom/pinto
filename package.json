@@ -9,6 +9,7 @@
         "qs": "^6.9.1",
         "react": "^16.12.0",
         "react-dom": "^16.12.0",
+        "react-modal": "^3.11.1",
         "redbox-react": "^1.6.0"
     },
     "scripts": {

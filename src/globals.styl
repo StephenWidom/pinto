@@ -1,8 +1,19 @@
+// Variables
+br = 2px // border radius
+goodGreen = #40ad32
+darkishGray = #999
+
 *
     box-sizing border-box
     font-family Tahoma, Arial
     margin 0
     padding 0
+
+h1
+    font-size 24px
+    margin-bottom 20px
+    text-shadow 1px 1px #bbb
+    position relative
 
 :root
     font-size 16px
@@ -20,6 +31,11 @@
         > * + *
             margin-left .5rem
 
+    #lists,
+    #products,
+    #list-view
+        width 100%
+
     .single-product
         display flex
         align-items center
@@ -34,20 +50,20 @@
             background #e3e3e3
 
     .single-product img
-        max-width 200px
+        max-width 120px
         height auto
         display block
 
     .single-product h3
         font-size 22px
         line-height 1.4
-        width calc(100% - 340px)
+        width calc(100% - 240px)
         padding 0 15px
 
     .single-product button
-        width 140px
-        font-size 18px
-        border-radius 2px
+        width 160px
+        font-size 17px
+        border-radius br
         border 1px solid #456fed
         padding 10px
         cursor pointer
@@ -57,4 +73,80 @@
             background #456fed
             color white
 
+    .lists-modal-overlay
+        position fixed
+        top 0
+        right 0
+        bottom 0
+        left 0
+        background rgba(0, 0, 0, 0.6)
+
+    .lists-modal
+        font-size 10px
+        position absolute
+        top 5%
+        right 5%
+        bottom 5%
+        left 5%
+        background #fff
+        border-radius br
+
+    #close-modal
+        position absolute
+        top 0
+        right 10px
+        cursor pointer
+        font-size 33px
+        font-family Arial
+        color #bc1616
+        transition transform 0.2s ease
+        font-weight bold
+        &:hover
+            transform scale(1.1)
+
+    .lists-modal form
+        display flex
+        vertical-align center
+        width 100%
+        height 100%
+        align-items center
+        justify-content center
+
+    .lists-modal form input
+        font-size 24px
+        padding 5px
+        display block
+        outline none
+        border 1px solid darkishGray
+        border-radius br
+        &[type=text]
+            border-right none
+            width 350px
+        &[type=submit]
+            padding 5px 15px
+            cursor pointer
+            border 1px solid goodGreen
+            background goodGreen
+            color #fff
+            transition all 0.2s ease
+            &:hover
+                color goodGreen
+                background #fff
+
+    .span-button
+        position absolute
+        right 0
+        cursor pointer
+        transition all 0.2s ease
+        border 1px solid goodGreen
+        background goodGreen
+        color #fff
+        text-shadow none
+        font-weight normal
+        box-shadow 1px 1px #999
+        font-size 16px
+        padding 5px 10px
+        border-radius br
+        &:hover
+            transform scale(1.1)
 

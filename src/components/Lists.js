@@ -1,27 +1,22 @@
 import React from 'react';
+import ListForm from './ListForm.js';
 
 const Lists = (props) => {
 
-    const { lists, createNewList, selectList, selectedList } = props;
+    const { lists, createNewList, selectList, selectedList, isModalOpen, toggleModal } = props;
 
     return (
-        <div id="lists">
-            {selectedList !== null && 
-                    <div>
-                        Current list: {selectedList.name}
-                    </div>
-            }
+        <div>
+            <h1>Shopping Lists <span onClick={toggleModal} id="open-modal" className="span-button">+ Create New List</span></h1>
             <div>
-            {lists !== null && !!lists.total && lists.result.map((list) => {
-                return (
-                    <div onClick={(e) => selectList(e, list)} key={list.id}>{list.name}</div>
-                )
-            })}
+            {lists !== null && !!lists.total && lists.result.map((list) =>
+                    <div onClick={() => selectList(list.id)} key={list.id}>{list.name}</div>
+            )
+            ||
+                <p>You haven't created a shopping list yet.</p>
+            }
             </div>
-            <form onSubmit={(e) => createNewList(e)}>
-                <input type="text" name="name" />
-                <input type="submit" value="Add new list" />
-            </form>
+            <ListForm isModalOpen={isModalOpen} toggleModal={toggleModal} createNewList={createNewList} />
         </div>
     )
 }

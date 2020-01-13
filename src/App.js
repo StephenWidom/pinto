@@ -9,7 +9,8 @@ import { apiGET, apiPOST } from './utils/fetch';
 
 import SearchForm from './components/SearchForm';
 import SearchResults from './components/SearchResults';
-import Lists from './components/Lists.js';
+import Lists from './components/Lists';
+import ListView from './components/ListView';
 
 class App extends PureComponent {
 
@@ -19,7 +20,12 @@ class App extends PureComponent {
         this.state = {
             products: null,
             lists: null,
-            selectedList: null
+            newListName: null,
+            newListProducts: [],
+            isModalOpen: false,
+            showLists: true,
+            selectedList: null,
+            selectedListProducts: []
         }
     }
 
@@ -27,6 +33,24 @@ class App extends PureComponent {
         this.getLists();
     }
 
+    backToLists = () => {
+        this.setState(() => {
+            return {
+                showLists: true,
+                selectedList: null,
+                selectedListProducts: []
+            }
+        });
+    }
+
+    toggleModal = () => {
+        this.setState((prevState) => {
+            return {
+                isModalOpen: !prevState.isModalOpen
+            }
+        }, () => console.log(this.state))
+    }
+                
     getLists = async () => {
         const lists = await apiGET('lists');
         this.setState(() => {
@@ -36,10 +60,26 @@ class App extends PureComponent {
         }, () => console.log(this.state))
     }
 
-    selectList = (e, list) => {
+    selectList = async (listID) => {
+        const selectedList = await apiGET(`list/${listID}`);
         this.setState(() => {
             return {
-                selectedList: list
+                selectedList
+            }
+        }, () => {
+            this.getSelectedListProducts(selectedList.products);
+        })
+    }
+
+    getSelectedListProducts = async (productArray) => {
+        let selectedListProducts = [];
+        await Promise.all(productArray.map(async (productID) => {
+            const product = await this.getProductById(productID);
+            selectedListProducts.push(product);
+        }));
+        this.setState(() => {
+            return {
+                selectedListProducts
             }
         }, () => console.log(this.state))
     }
@@ -47,11 +87,23 @@ class App extends PureComponent {
     queryProducts = async (e) => {
         e.preventDefault();
         const searchTerm = e.target.query.value.trim();
+
+        if (searchTerm == '') {
+            alert("You must provide a value for item name");
+            return;
+        }
+
+        let filters = {};
+        filters.name = searchTerm;
+
+        const brand = e.target.brand.value.trim();
+        if (brand != '') {
+            filters.brand = brand;
+        }
+
         const searchResults = await apiGET('products', {
             limit: 10,
-            filters: {
-                name: searchTerm
-            }
+            filters: filters
         });
         this.setState(() => {
             return {
@@ -60,31 +112,80 @@ class App extends PureComponent {
         }, () => console.log(this.state));
     }
 
-    createNewList = async (e) => {
+    createNewList = (e) => {
         e.preventDefault();
-        const listName = e.target.name.value.trim();
-        const newList = await apiPOST('list', {
-            name: listName,
-            products: []
-        }); 
-        console.log('Added!', newList);
-        this.getLists();
+        const newListName = e.target.name.value.trim();
+        if (newListName == '') {
+            alert('You must enter a name for your new list');
+            return
+        }
+        this.toggleModal();
+        this.setState(() => {
+            return {
+                newListName,
+                showLists: false
+            }
+        }, () => console.log(this.state))
     }
 
-    addToList = async (id) => {
-        // Test to see if we can update lists with POST
+    addToList = (productID) => {
+        this.setState((prevState) => {
+            return {
+                newListProducts: prevState.newListProducts.concat(productID)
+            }
+        }, () => console.log(this.state))
+    }
+
+    isInList = (productID) => {
+        return this.state.newListProducts.includes(productID);
+    }
+
+    removeFromList = (productID) => {
+        this.setState((prevState) => {
+            return {
+                newListProducts: prevState.newListProducts.filter(product => product !== productID)
+            }
+        }, () => console.log(this.state))
+    }
+
+    saveList = async () => {
+        const newList = await apiPOST('list', {
+            name: this.state.newListName,
+            products: this.state.newListProducts
+        });
+        console.log('List added!');
+        this.getLists();
+        this.setState(() => {
+            return {
+                showLists: true
+            }
+        }, () => console.log(this.state))
+    }
+
+    getProductById = async (productID) => {
+        const product = await apiGET(`product/${productID}`);
+        return product;
     }
 
     render () {
-        const { products, lists, selectedList } = this.state;
+        const { products, lists, newListName, isModalOpen, selectedList, showLists, selectedListProducts } = this.state;
 
         return (
             <div className={styles.root}>
-                <Lists lists={lists} createNewList={this.createNewList} selectList={this.selectList} selectedList={selectedList} />
-                <SearchForm queryProducts={this.queryProducts} />
-                {products !== null && "total" in products && products.total > 0 &&
-                <SearchResults products={products} addToList={this.addToList} />
-                }
+                {selectedList !== null &&
+                <ListView selectedList={selectedList} backToLists={this.backToLists} selectedListProducts={selectedListProducts} isInList={this.isInList} />
+                || (showLists &&
+                <div id="lists">
+                    <Lists lists={lists} isModalOpen={isModalOpen} createNewList={this.createNewList} toggleModal={this.toggleModal} selectList={this.selectList} newListName={newListName} />
+                </div>
+                ||
+                <div id="products">
+                    <SearchForm queryProducts={this.queryProducts} newListName={newListName} saveList={this.saveList} />
+                    {products !== null && "total" in products && products.total > 0 &&
+                    <SearchResults products={products} removeFromList={this.removeFromList} addToList={this.addToList} isInList={this.isInList} />
+                    }
+                </div>
+                )}
             </div>
         );
     }
